@@ -2,15 +2,15 @@
 
 WITH pizzas_count AS (
   SELECT
-    name AS "Название заведения",
+    r.name AS "Название заведения",
     COUNT(*) AS "Количество пицц в меню"
   FROM
-    cafe.restaurants,
-    jsonb_each(menu)  -- раскроем jsonb в ключ-значение (ключ — название блюда)
+    cafe.restaurants r,
+    LATERAL jsonb_each(r.menu->'Пицца') AS pizza
   WHERE
-    type = 'pizzeria'
+    r.type = 'pizzeria' AND r.menu ? 'Пицца'
   GROUP BY
-    name
+    r.name
 ),
 ranked_pizzas AS (
   SELECT
